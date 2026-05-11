@@ -1,11 +1,21 @@
 {
   "scripts": {
-    "start": "serve -s . -l tcp://0.0.0.0:${PORT:-3000}"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node --check server.js && node --check command-center.mjs && node --check scripts/embed-runtime.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:e2e": "playwright test",
+    "verify": "npm run check && npm run test && npm run build:inline && npm run test:e2e",
+    "build:inline": "node scripts/embed-runtime.mjs"
   },
   "dependencies": {
-    "serve": "^14.2.5"
+    "three": "^0.181.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "esbuild": "^0.27.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
