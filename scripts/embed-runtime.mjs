@@ -1,40 +1,40 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { build } from "esbuild";
 
-const start = "    <!-- runtime:start -->";
-const end = "    <!-- runtime:end -->";
+const indexPath = new URL("../index.html", import.meta.url);
+const runtimePath = new URL("../command-center.mjs", import.meta.url);
+const startMarker = "<!-- runtime:start -->";
+const endMarker = "<!-- runtime:end -->";
 
 const result = await build({
-  entryPoints: ["command-center.mjs"],
+  entryPoints: [runtimePath.pathname],
   bundle: true,
   format: "iife",
-  target: "es2020",
   minify: true,
   write: false,
   logLevel: "silent",
 });
 
-const bundle = result.outputFiles[0].text
-  .replace(/\t/g, "  ")
-  .split("\n")
-  .map((line) => line.replace(/[ \t]+$/g, ""))
-  .join("\n");
-const html = await readFile("index.html", "utf8");
-const startIndex = html.indexOf(start);
-const endIndex = html.indexOf(end);
+const bundle = result.outputFiles[0].text.trimEnd();
+const html = await readFile(indexPath, "utf8");
+const start = html.indexOf(startMarker);
+const end = html.indexOf(endMarker);
 
-if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-  throw new Error("Runtime markers not found in index.html");
+if (start === -1 || end === -1 || end <= start) {
+  throw new Error(`Could not find ${startMarker} and ${endMarker} in index.html`);
 }
 
-const replacement = `${start}
-    <script>
-${bundle
-  .split("\n")
-  .map((line) => (line ? `      ${line}` : ""))
-  .join("\n")}
-    </script>
-    ${end}`;
+const lineStart = html.lastIndexOf("\n", start) + 1;
+const lineIndent = html.slice(lineStart, start);
+const replacement = [
+  `${lineIndent}${startMarker}`,
+  `${lineIndent}<script>`,
+  bundle,
+  `${lineIndent}</script>`,
+  `${lineIndent}${endMarker}`,
+].join("\n");
 
-const nextHtml = `${html.slice(0, startIndex)}${replacement}${html.slice(endIndex + end.length)}`;
-await writeFile("index.html", nextHtml);
+const nextHtml = `${html.slice(0, lineStart)}${replacement}${html.slice(end + endMarker.length)}`;
+
+await writeFile(indexPath, nextHtml);
+console.log(`Embedded ${bundle.length} bytes from command-center.mjs into index.html`);
