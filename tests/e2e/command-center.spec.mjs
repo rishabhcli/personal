@@ -102,12 +102,13 @@ test("desktop command center supports search, case study, terminal, status, and 
   await page.locator("#portfolio-query").fill("agent");
   await page.locator("#search-form button").click();
   await expect(page.locator("#ranked-results")).toContainText("QAgent");
-  await expect(page.locator("#ranked-results")).toContainText(/signal|Matches/i);
+  await expect(page.locator("#ranked-results")).toContainText(/proof \d+\/100; confidence \d+\/100/i);
 
   await page.locator("#project-list [data-project='qagent']").click();
   await expect(page.locator("#project-list [data-project='qagent']")).toHaveAttribute("aria-current", "true");
   await expect(page.locator("#case-study")).toContainText("QAgent");
   await expect(page.locator("#case-study")).toContainText("Evidence trail");
+  await expect(page.locator("#case-study")).not.toContainText("undefined");
   await page.locator("#project-list [data-project='qagent']").focus();
   await page.keyboard.press("ArrowDown");
   await expect(page.locator("#project-list [data-project='flowpr']")).toBeFocused();

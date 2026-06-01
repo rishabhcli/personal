@@ -4582,27 +4582,32 @@ describe("personal command center API", () => {
     assert.equal(visualHistory.body.detail, "summary");
     assert.equal(visualHistory.body.compact, true);
     assert.equal(visualHistory.body.sourceBoundary, undefined);
-    assert.equal(visualHistory.body.sourceBoundaryAvailable, true);
+    assert.equal(visualHistory.body.sourceBoundaryAvailable, undefined);
     assert.equal(visualHistory.body.sideEffectBoundary, undefined);
-    assert.equal(visualHistory.body.sideEffectBoundaryAvailable, true);
+    assert.equal(visualHistory.body.sideEffectBoundaryAvailable, undefined);
     assert.equal(visualHistory.body.reportStore, undefined);
-    assert.equal(visualHistory.body.reportStoreAvailable, true);
+    assert.equal(visualHistory.body.reportStoreAvailable, undefined);
     assert.equal(visualHistory.body.summary.limit, 5);
     assert.equal(visualHistory.body.generatedAt, undefined);
     assert.equal(visualHistory.body.summary.latestCheckedAt, undefined);
     assert.equal(visualHistory.body.fullDetailEndpoint, "/api/visual-regression/history?detail=full");
-    assert.equal(visualHistory.body.historyPayloadPolicy.fullDetailAvailable, true);
+    assert.equal(visualHistory.body.historyPayloadPolicy.fullDetailAvailable, undefined);
     assert.equal(visualHistory.body.historyPayloadPolicy.reportsReturned, visualHistory.body.reports.length);
-    assert.equal(visualHistory.body.historyPayloadPolicy.olderReportPreview, "trend-summary-only");
+    assert.equal(visualHistory.body.historyPayloadPolicy.olderReportPreview, undefined);
+    assert.equal(visualHistory.body.definitionsAvailable, undefined);
+    assert.equal(visualHistory.body.omittedDetailAvailable, undefined);
     assert.ok(Array.isArray(visualHistory.body.reports));
-    assert.ok(visualHistory.body.reports.length <= 5);
+    assert.ok(visualHistory.body.reports.length <= 1);
     assert.ok(visualHistory.body.reports.every((report) => !report.checks));
     assert.ok(visualHistory.body.reports.every((report) => !report.checkedAt && !report.summary));
     if (visualHistory.body.reports.length > 0) {
       assert.ok(visualHistory.body.reports[0].checkPreview);
+      assert.ok(visualHistory.body.reports[0].checkPreview.length <= 2);
       assert.ok(visualHistory.body.reports[0].checkPreview.every((check) => !("screenshotPath" in check)));
       assert.ok(visualHistory.body.reports[0].checkPreview.every((check) => !("selector" in check)));
       assert.ok(Number.isInteger(visualHistory.body.reports[0].checkSummary.passing));
+      assert.equal(visualHistory.body.reports[0].checkSummary.comparisons, undefined);
+      assert.ok(Number.isInteger(visualHistory.body.reports[0].checkCount));
     }
     if (visualHistory.body.reports.length > 1) {
       assert.equal(visualHistory.body.reports[1].checkPreview, undefined);
@@ -4610,8 +4615,9 @@ describe("personal command center API", () => {
       assert.equal(typeof visualHistory.body.reports[1].checkSummary.total, "number");
     }
     assert.equal(visualHistory.body.verificationCommand, undefined);
-    assert.equal(visualHistory.body.verificationCommandAvailable, true);
-    assert.ok(Buffer.byteLength(JSON.stringify(visualHistory.body)) < 2500);
+    assert.equal(visualHistory.body.verificationCommandAvailable, undefined);
+    assert.equal(visualHistory.body.nextActionAvailable, undefined);
+    assert.ok(Buffer.byteLength(JSON.stringify(visualHistory.body)) < 900);
 
     const fullVisualHistory = await json("/api/visual-regression/history?detail=full&limit=10");
     assert.equal(fullVisualHistory.response.status, 200);

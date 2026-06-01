@@ -4985,32 +4985,32 @@ void main() {
       <strong>${ae(e.label)} -&gt; ${ae(t.label)}</strong>
       <span>${ae(i.explanation||i.relation)}</span>
     </button>
-  `}function d0(i){let e=si(i);if(!e)return;let t=qo(e);t[0]&&(Z.activeSlug=t[0]),fe.graphTitle.textContent=e.label,fe.graphCopy.textContent=nh(e,t),Ta(),ri()}function si(i){return(Z.graph?.nodes||[]).find(e=>e.id===i)}function th(i){return Z.projects.find(e=>e.slug===i)}function qo(i){let e=new Set(Z.projects.map(n=>n.slug));if(e.has(i.id))return[i.id];let t=(Z.graph?.edges||[]).filter(n=>n.target===i.id&&e.has(n.source)).sort((n,s)=>Number(s.weight||0)-Number(n.weight||0)).map(n=>n.source);return[...new Set(t)]}function f0(i,e){let t=Number.isFinite(Number(i.score))?`${Math.round(Number(i.score))}/100`:"linked";return i.type==="claim"?`${i.evidenceStrength||"claim"} \xB7 ${t}`:i.type==="artifact-gap-repair"?`proof repair \xB7 ${t}`:i.type==="opportunity"?`${i.audience||"opportunity"} \xB7 ${t}`:i.type==="verification-receipt"?`receipt \xB7 ${t} passing`:`${$o(i.type)} \xB7 ${e.length?e.length:"graph"} link`}function nh(i,e=qo(i)){let t=e.map(th).filter(Boolean),n=t.length?` Connected to ${t.slice(0,3).map(r=>r.title).join(", ")}${t.length>3?` and ${t.length-3} more`:""}.`:"",s=Number.isFinite(Number(i.score))?`${Math.round(Number(i.score))}/100`:"unscored";if(i.type==="claim")return`${i.evidenceStrength||"Source-backed"} claim at ${s} confidence.${n}`;if(i.type==="opportunity")return`Opportunity route for ${i.audience||"a portfolio reader"} at ${s} fit.${n}`;if(i.type==="artifact-gap-repair"){let r=Number(i.opportunityUnlocks||0);return`Proof-media repair plan at ${s} unlock pressure for ${r} opportunity path${r===1?"":"s"}. It is not claiming the missing screenshot or video exists yet.${n}`}return i.type==="screenshot"?`Missing screenshot artifact tracked as a public-safe repair target.${n}`:i.type==="verification-receipt"?`Verification receipt with ${s} passing checks from the trust console.`:i.type==="project"?`${i.tier||"Project"} node with ${s} signal in the selected-work graph.`:`${$o(i.type)} node in the public semantic graph.${n}`}function $o(i){return{project:"Projects",claim:"Claims","artifact-gap-repair":"Proof repairs",opportunity:"Opportunities","verification-receipt":"Receipts",screenshot:"Screenshot gaps",skill:"Skills",domain:"Domains",system:"Systems",person:"People",education:"Education",course:"Courses"}[i]||i}async function Fi(i,{focusProject:e=!1}={}){Z.activeSlug=i,Ta({focusSlug:e?i:null});let n=await(await fetch(`/api/case-study/${i}`)).json(),s=Z.projects.find(l=>l.slug===i)||Z.projects[0]||{},r=n.gradient||s.gradient||["#38bdf8","#f59e0b"],a=n.stack||n.stackPreview||s.stack||[],o=n.proof||s.proof||[];fe.caseStudy.innerHTML=`
+  `}function d0(i){let e=si(i);if(!e)return;let t=qo(e);t[0]&&(Z.activeSlug=t[0]),fe.graphTitle.textContent=e.label,fe.graphCopy.textContent=nh(e,t),Ta(),ri()}function si(i){return(Z.graph?.nodes||[]).find(e=>e.id===i)}function th(i){return Z.projects.find(e=>e.slug===i)}function qo(i){let e=new Set(Z.projects.map(n=>n.slug));if(e.has(i.id))return[i.id];let t=(Z.graph?.edges||[]).filter(n=>n.target===i.id&&e.has(n.source)).sort((n,s)=>Number(s.weight||0)-Number(n.weight||0)).map(n=>n.source);return[...new Set(t)]}function f0(i,e){let t=Number.isFinite(Number(i.score))?`${Math.round(Number(i.score))}/100`:"linked";return i.type==="claim"?`${i.evidenceStrength||"claim"} \xB7 ${t}`:i.type==="artifact-gap-repair"?`proof repair \xB7 ${t}`:i.type==="opportunity"?`${i.audience||"opportunity"} \xB7 ${t}`:i.type==="verification-receipt"?`receipt \xB7 ${t} passing`:`${$o(i.type)} \xB7 ${e.length?e.length:"graph"} link`}function nh(i,e=qo(i)){let t=e.map(th).filter(Boolean),n=t.length?` Connected to ${t.slice(0,3).map(r=>r.title).join(", ")}${t.length>3?` and ${t.length-3} more`:""}.`:"",s=Number.isFinite(Number(i.score))?`${Math.round(Number(i.score))}/100`:"unscored";if(i.type==="claim")return`${i.evidenceStrength||"Source-backed"} claim at ${s} confidence.${n}`;if(i.type==="opportunity")return`Opportunity route for ${i.audience||"a portfolio reader"} at ${s} fit.${n}`;if(i.type==="artifact-gap-repair"){let r=Number(i.opportunityUnlocks||0);return`Proof-media repair plan at ${s} unlock pressure for ${r} opportunity path${r===1?"":"s"}. It is not claiming the missing screenshot or video exists yet.${n}`}return i.type==="screenshot"?`Missing screenshot artifact tracked as a public-safe repair target.${n}`:i.type==="verification-receipt"?`Verification receipt with ${s} passing checks from the trust console.`:i.type==="project"?`${i.tier||"Project"} node with ${s} signal in the selected-work graph.`:`${$o(i.type)} node in the public semantic graph.${n}`}function $o(i){return{project:"Projects",claim:"Claims","artifact-gap-repair":"Proof repairs",opportunity:"Opportunities","verification-receipt":"Receipts",screenshot:"Screenshot gaps",skill:"Skills",domain:"Domains",system:"Systems",person:"People",education:"Education",course:"Courses"}[i]||i}async function Fi(i,{focusProject:e=!1}={}){Z.activeSlug=i,Ta({focusSlug:e?i:null});let n=await(await fetch(`/api/case-study/${i}`)).json(),s=Z.projects.find(g=>g.slug===i)||Z.projects[0]||{},r=n.gradient||s.gradient||["#38bdf8","#f59e0b"],a=n.stack||n.stackPreview||s.stack||[],o=n.proof||s.proof||[],l=n.tier||s.tier||"Project",c=n.visibility||s.visibility||"Public-safe",h=n.title||s.title||i,d=n.summary||s.summary||"Public-safe project summary is unavailable.",f=n.timeline||s.timeline||"Timeline under review",p=n.outcome||s.outcome||"Outcome under review";fe.caseStudy.innerHTML=`
     <div class="case-hero" style="--case-a:${r[0]};--case-b:${r[1]}">
       <div>
-        <span>${ae(n.tier)} / ${ae(n.visibility)}</span>
-        <h3>${ae(n.title)}</h3>
-        <p>${ae(n.summary)}</p>
+        <span>${ae(l)} / ${ae(c)}</span>
+        <h3>${ae(h)}</h3>
+        <p>${ae(d)}</p>
       </div>
-      <strong>${n.score}</strong>
+      <strong>${n.score||s.score||0}</strong>
     </div>
     <div class="case-meta">
-      <span>${ae(n.timeline)}</span>
-      <span>${ae(n.outcome)}</span>
+      <span>${ae(f)}</span>
+      <span>${ae(p)}</span>
     </div>
     <div class="case-sections">
-      ${n.sections.map(l=>`
+      ${n.sections.map(g=>`
         <section>
-          <h4>${ae(l.title)}</h4>
-          <p>${ae(l.body)}</p>
+          <h4>${ae(g.title)}</h4>
+          <p>${ae(g.body)}</p>
         </section>
       `).join("")}
     </div>
     <div class="stack-strip">
-      ${a.map(l=>`<span>${ae(l)}</span>`).join("")}
+      ${a.map(g=>`<span>${ae(g)}</span>`).join("")}
     </div>
     <div class="proof-list">
-      ${o.map(l=>`<p>${ae(l)}</p>`).join("")}
+      ${o.map(g=>`<p>${ae(g)}</p>`).join("")}
     </div>
   `,sh(n.slug,{focusProject:e})}async function Xo(i){let t=await(await fetch(`/api/guide?q=${encodeURIComponent(i)}`)).json();fe.guideAnswer.innerHTML=`
     <span class="muted-label">retrieval guide</span>

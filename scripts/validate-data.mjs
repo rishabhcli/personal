@@ -5653,29 +5653,32 @@ function validateVisualRegressionPlan() {
   assert(history.mode === "visual-regression-history", "visualRegression history mode invalid");
   assert(history.detail === "summary", "visualRegression history detail invalid");
   assert(history.compact === true, "visualRegression history compact flag invalid");
-  assert(!history.sourceBoundary && history.sourceBoundaryAvailable === true, "visualRegression compact source boundary should be availability-only");
+  assert(!history.sourceBoundary && history.sourceBoundaryAvailable === undefined, "visualRegression compact source boundary should be omitted");
   assert(
-    !history.sideEffectBoundary && history.sideEffectBoundaryAvailable === true,
-    "visualRegression compact side effect boundary should be availability-only",
+    !history.sideEffectBoundary && history.sideEffectBoundaryAvailable === undefined,
+    "visualRegression compact side effect boundary should be omitted",
   );
-  assert(!history.reportStore && history.reportStoreAvailable === true, "visualRegression compact report store should be availability-only");
+  assert(!history.reportStore && history.reportStoreAvailable === undefined, "visualRegression compact report store should be omitted");
   assert(history.summary.limit === 5, "visualRegression history limit invalid");
   assert(history.generatedAt === undefined, "visualRegression compact history should omit volatile timestamp");
   assert(history.summary.latestCheckedAt === undefined, "visualRegression compact summary should omit latest checked timestamp");
   assert(history.fullDetailEndpoint === "/api/visual-regression/history?detail=full", "visualRegression history full endpoint invalid");
-  assert(history.historyPayloadPolicy.fullDetailAvailable === true, "visualRegression compact policy should expose full detail availability");
+  assert(history.historyPayloadPolicy.fullDetailAvailable === undefined, "visualRegression compact policy should omit duplicate full detail availability");
   assert(history.historyPayloadPolicy.reportsReturned === history.reports.length, "visualRegression compact policy report count invalid");
-  assert(history.historyPayloadPolicy.olderReportPreview === "trend-summary-only", "visualRegression older history rows should be trend-only");
-  assert(history.reports[0].checkPreview.length === plan.snapshots.length, "visualRegression history preview invalid");
+  assert(history.historyPayloadPolicy.olderReportPreview === undefined, "visualRegression compact policy should omit older preview prose");
+  assert(history.definitionsAvailable === undefined && history.omittedDetailAvailable === undefined, "visualRegression compact history should omit duplicate definition flags");
+  assert(history.reports.length === 1, "visualRegression compact history should return one latest report row");
+  assert(history.reports[0].checkPreview.length <= 2, "visualRegression history preview invalid");
   assert(history.reports[0].checkPreview.every((check) => check.screenshotPath === undefined), "visualRegression preview should omit screenshot paths");
   assert(history.reports[0].checkPreview.every((check) => check.selector === undefined), "visualRegression preview should omit selectors");
   assert(Number.isInteger(history.reports[0].checkSummary.passing), "visualRegression history check summary invalid");
+  assert(history.reports[0].checkSummary.comparisons === undefined, "visualRegression compact check summary should omit comparison map");
+  assert(history.reports[0].checkCount === plan.snapshots.length, "visualRegression compact history check count invalid");
   assert(history.reports.every((row) => row.checkedAt === undefined && row.summary === undefined), "visualRegression compact rows should omit timestamps and duplicate summaries");
   assert(!history.reports[0].checks, "visualRegression history should not expose full checks");
-  assert(history.reports[1].latestReportPreviewOnly === true, "visualRegression older history rows must be trend-only");
-  assert(!history.reports[1].checkPreview, "visualRegression older history rows must omit previews");
-  assert(!history.verificationCommand && history.verificationCommandAvailable === true, "visualRegression compact history verification must be availability-only");
-  assert(Buffer.byteLength(JSON.stringify(history)) < 2500, "visualRegression compact history exceeds byte budget");
+  assert(!history.verificationCommand && history.verificationCommandAvailable === undefined, "visualRegression compact history verification must be omitted");
+  assert(history.nextActionAvailable === undefined, "visualRegression compact history should omit next action availability");
+  assert(Buffer.byteLength(JSON.stringify(history)) < 900, "visualRegression compact history exceeds byte budget");
   const fullHistory = buildVisualRegressionHistory({ reports: [report], limit: 5, totalAvailable: 1, detail: "full" });
   assert(fullHistory.detail === "full", "visualRegression full history detail invalid");
   assert(fullHistory.historyPayloadPolicy.fullDetail === true, "visualRegression full history policy invalid");

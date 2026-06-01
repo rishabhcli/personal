@@ -64,6 +64,7 @@ function buildVisualRegressionHistory({ reports = [], limit = 5, totalAvailable 
   const boundedLimit = boundedHistoryLimit(limit);
   const limited = reports.slice(0, boundedLimit);
   const fullDetail = String(detail || "").toLowerCase() === "full";
+  const compactRows = fullDetail ? limited : limited.slice(0, 1);
   const latest = limited[0] || null;
   return {
     ...(fullDetail ? { generatedAt: new Date().toISOString() } : {}),
@@ -74,18 +75,18 @@ function buildVisualRegressionHistory({ reports = [], limit = 5, totalAvailable 
       fullDetail
         ? "This endpoint returns full local visual-regression reports. It is local screenshot evidence only and does not replace human visual review across production browsers, devices, or assets."
         : undefined,
-    sourceBoundaryAvailable: fullDetail ? undefined : true,
+    sourceBoundaryAvailable: undefined,
     sideEffectBoundary:
       fullDetail
         ? "The history endpoint reads local visual-regression reports only. It does not start browsers, update baselines, write screenshots, deploy, publish, or contact third-party services."
         : undefined,
-    sideEffectBoundaryAvailable: fullDetail ? undefined : true,
+    sideEffectBoundaryAvailable: undefined,
     reportStore: fullDetail ? REPORT_STORE_RELATIVE_PATH : undefined,
-    reportStoreAvailable: fullDetail ? undefined : true,
+    reportStoreAvailable: undefined,
     fullDetailEndpoint: "/api/visual-regression/history?detail=full",
-    historyPayloadPolicy: visualHistoryPayloadPolicy({ fullDetail, reportsReturned: limited.length }),
+    historyPayloadPolicy: visualHistoryPayloadPolicy({ fullDetail, reportsReturned: compactRows.length }),
     summary: {
-      reports: limited.length,
+      reports: compactRows.length,
       totalAvailable,
       limit: boundedLimit,
       latestReportId: latest?.id || null,
@@ -95,17 +96,17 @@ function buildVisualRegressionHistory({ reports = [], limit = 5, totalAvailable 
       latestFailing: latest?.summary?.failing || 0,
       latestChanged: latest?.summary?.changed || 0,
     },
-    definitionsAvailable: fullDetail ? undefined : true,
-    omittedDetailAvailable: fullDetail ? undefined : true,
-    reports: fullDetail ? limited : limited.map((report, index) => summarizeVisualRegressionReport(report, { includePreview: index === 0 })),
+    definitionsAvailable: undefined,
+    omittedDetailAvailable: undefined,
+    reports: fullDetail ? limited : compactRows.map((report) => summarizeVisualRegressionReport(report)),
     nextAction: fullDetail
       ? latest
         ? "Visual-regression history is available; run npm run audit:visual after visual, layout, copy, or screenshot target changes."
         : "Run npm run audit:visual to create visual-regression history."
       : undefined,
-    nextActionAvailable: fullDetail ? undefined : Boolean(latest),
+    nextActionAvailable: undefined,
     verificationCommand: fullDetail ? "npm run audit:visual && node --test test/api-contract.test.mjs" : undefined,
-    verificationCommandAvailable: fullDetail ? undefined : true,
+    verificationCommandAvailable: undefined,
   };
 }
 
@@ -114,6 +115,7 @@ function summarizeVisualRegressionReport(report, { includePreview = true } = {})
   const compact = {
     id: report.id,
     checkSummary: summarizeVisualRegressionChecks(checks, report.summary),
+    checkCount: checks.length,
   };
   if (!includePreview) {
     return {
@@ -123,7 +125,7 @@ function summarizeVisualRegressionReport(report, { includePreview = true } = {})
   }
   return {
     ...compact,
-    checkPreview: checks.map(({ id, comparison, passed }) => ({
+    checkPreview: selectVisualRegressionPreview(checks, 2).map(({ id, comparison, passed }) => ({
       id,
       comparison,
       passed: Boolean(passed),
@@ -145,11 +147,21 @@ function visualHistoryPayloadPolicy({ fullDetail, reportsReturned }) {
   }
   return {
     fullDetail: false,
-    fullDetailAvailable: true,
     reportsReturned,
-    latestReportPreview: "check-preview",
-    olderReportPreview: "trend-summary-only",
   };
+}
+
+function selectVisualRegressionPreview(checks = [], limit = 2) {
+  const selected = [];
+  for (const check of checks) {
+    if (selected.length >= limit) break;
+    if (!check.passed || check.comparison === "changed") selected.push(check);
+  }
+  for (const check of checks) {
+    if (selected.length >= limit) break;
+    if (!selected.includes(check)) selected.push(check);
+  }
+  return selected;
 }
 
 function summarizeVisualRegressionChecks(checks, summary = {}) {
@@ -158,31 +170,11 @@ function summarizeVisualRegressionChecks(checks, summary = {}) {
     passing: summary.passing || checks.filter((check) => check.passed).length,
     failing: summary.failing || checks.filter((check) => !check.passed).length,
     changed: summary.changed || checks.filter((check) => check.comparison === "changed").length,
-    comparisons: countBy(checks, (check) => check.comparison || "unknown"),
-  };
-}
-
-function summarizeVisualRegressionSummary(summary = {}) {
-  return {
-    total: summary.total || 0,
-    passing: summary.passing || 0,
-    failing: summary.failing || 0,
-    baselinesCreated: summary.baselinesCreated || 0,
-    baselinesUpdated: summary.baselinesUpdated || 0,
-    changed: summary.changed || 0,
   };
 }
 
 function boundedHistoryLimit(limit) {
   return Math.max(1, Math.min(Number(limit) || 5, 50));
-}
-
-function countBy(items, keyFn) {
-  return items.reduce((counts, item) => {
-    const key = keyFn(item);
-    counts[key] = (counts[key] || 0) + 1;
-    return counts;
-  }, {});
 }
 
 function appendVisualRegressionReport(root, report) {

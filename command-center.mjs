@@ -1242,18 +1242,24 @@ async function openCase(slug, { focusProject = false } = {}) {
   const gradient = project.gradient || projectRecord.gradient || ["#38bdf8", "#f59e0b"];
   const stack = project.stack || project.stackPreview || projectRecord.stack || [];
   const proof = project.proof || projectRecord.proof || [];
+  const tier = project.tier || projectRecord.tier || "Project";
+  const visibility = project.visibility || projectRecord.visibility || "Public-safe";
+  const title = project.title || projectRecord.title || slug;
+  const summary = project.summary || projectRecord.summary || "Public-safe project summary is unavailable.";
+  const timeline = project.timeline || projectRecord.timeline || "Timeline under review";
+  const outcome = project.outcome || projectRecord.outcome || "Outcome under review";
   els.caseStudy.innerHTML = `
     <div class="case-hero" style="--case-a:${gradient[0]};--case-b:${gradient[1]}">
       <div>
-        <span>${escapeHtml(project.tier)} / ${escapeHtml(project.visibility)}</span>
-        <h3>${escapeHtml(project.title)}</h3>
-        <p>${escapeHtml(project.summary)}</p>
+        <span>${escapeHtml(tier)} / ${escapeHtml(visibility)}</span>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(summary)}</p>
       </div>
-      <strong>${project.score}</strong>
+      <strong>${project.score || projectRecord.score || 0}</strong>
     </div>
     <div class="case-meta">
-      <span>${escapeHtml(project.timeline)}</span>
-      <span>${escapeHtml(project.outcome)}</span>
+      <span>${escapeHtml(timeline)}</span>
+      <span>${escapeHtml(outcome)}</span>
     </div>
     <div class="case-sections">
       ${project.sections
