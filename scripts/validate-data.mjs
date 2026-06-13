@@ -13937,7 +13937,15 @@ function validateEvaluationSampleReport() {
   assert(compactResponse.detail === "summary" && compactResponse.compact === true, "evaluationSample compact response detail invalid");
   assert(compactResponse.fullDetailEndpoint === "/api/evaluation/sample?detail=full", "evaluationSample compact full endpoint invalid");
   assert(compactResponse.evaluationSamplePayloadPolicy.fullDetail === false, "evaluationSample compact policy invalid");
-  assert(Buffer.byteLength(JSON.stringify(compactResponse)) < 2500, "evaluationSample compact response exceeds byte budget");
+  assert(compactResponse.evaluationSamplePayloadPolicy.fullDetailAvailable === undefined, "evaluationSample compact policy should omit duplicate full detail availability");
+  assert(compactResponse.generatedAt === undefined && compactResponse.checkedAt === undefined, "evaluationSample compact response should omit timestamps");
+  assert(compactResponse.cachePolicy === undefined, "evaluationSample compact response should omit cache policy prose");
+  assert(compactResponse.sourceBoundaryAvailable === undefined && compactResponse.sideEffectBoundaryAvailable === undefined, "evaluationSample compact response should omit boundary flags");
+  assert(compactResponse.plan === undefined && compactResponse.methodology === undefined, "evaluationSample compact response should omit plan and methodology prose");
+  assert(compactResponse.sampleMatrixSummary === undefined, "evaluationSample compact response should omit matrix duplicate");
+  assert(compactResponse.nextActionAvailable === undefined && compactResponse.verificationCommandAvailable === undefined, "evaluationSample compact response should omit low-value availability flags");
+  assert(Number.isInteger(compactResponse.repairQueueCount), "evaluationSample compact repair queue count invalid");
+  assert(Buffer.byteLength(JSON.stringify(compactResponse)) < 1000, "evaluationSample compact response exceeds byte budget");
   assert(compactResponse.evaluationSamplePayloadPolicy.samplesReturned === compactResponse.samples.length, "evaluationSample compact returned sample count invalid");
   assert(compactResponse.evaluationSamplePayloadPolicy.totalSamples === report.samples.length, "evaluationSample compact total sample count invalid");
   assert(compactResponse.samples.length <= 3, "evaluationSample compact samples should be prioritized previews");
@@ -13945,7 +13953,9 @@ function validateEvaluationSampleReport() {
   assert(compactResponse.samples.some((sample) => sample.id === "runtime-chain-sample"), "evaluationSample compact runtime sample missing");
   assert(compactResponse.samples.some((sample) => sample.id === "route-refresh-sample"), "evaluationSample compact route sample missing");
   assert(compactResponse.samples.every((sample) => !("detail" in sample) && !("repairAction" in sample)), "evaluationSample compact samples must omit repair prose");
-  assert(compactResponse.samples.every((sample) => sample.detailAvailable && sample.verificationCommandAvailable), "evaluationSample compact sample availability flags invalid");
+  assert(compactResponse.samples.every((sample) => !("detailAvailable" in sample) && !("verificationCommandAvailable" in sample)), "evaluationSample compact samples should omit detail/command flags");
+  assert(compactResponse.nonClaims === undefined && compactResponse.nonClaimsAvailable === true, "evaluationSample compact non-claims should be count-only");
+  assert(compactResponse.nonClaimCount === report.nonClaims.length, "evaluationSample compact non-claim count invalid");
   const fullResponse = buildEvaluationSampleResponse(report, { detail: "full" });
   assert(fullResponse.detail === "full" && fullResponse.compact === false, "evaluationSample full response detail invalid");
   assert(fullResponse.evaluationSamplePayloadPolicy.fullDetail === true, "evaluationSample full response policy invalid");

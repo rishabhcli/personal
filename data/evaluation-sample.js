@@ -218,36 +218,21 @@ function buildEvaluationSampleResponse(report, { detail = "summary" } = {}) {
   const samplePreview = selectPreviewById(report.samples || [], COMPACT_SAMPLE_PREVIEW_IDS, COMPACT_SAMPLE_PREVIEW_IDS.length);
 
   return {
-    generatedAt: report.generatedAt,
-    checkedAt: report.checkedAt || null,
     mode: report.mode,
     cachedFromReceipt: Boolean(report.cachedFromReceipt),
-    cachePolicy: report.cachePolicy,
     refreshEndpoint: report.refreshEndpoint || `${ENDPOINT}?refresh=1`,
     detail: "summary",
     compact: true,
     fullDetailEndpoint: `${ENDPOINT}?detail=full`,
-    sourceBoundaryAvailable: Boolean(report.sourceBoundary),
-    sideEffectBoundaryAvailable: Boolean(report.sideEffectBoundary),
-    plan: {
-      command: evaluationSamplePlan().command,
-      endpoint: ENDPOINT,
-    },
-    methodology: summarizeEvaluationSampleMethodology(report.methodology, report.samples),
     summary: summarizeEvaluationSampleSummary(report.summary),
     samples: samplePreview.map(summarizeEvaluationSample),
-    sampleMatrixSummary: summarizeEvaluationSampleMatrix(report.sampleMatrix || buildSampleMatrix(report.samples || [])),
-    repairQueue: (report.repairQueue || []).map(({ id, domain, severity }) => ({ id, domain, severity })),
-    nonClaims: compactEvaluationSampleNonClaims(report.nonClaims || []),
+    repairQueueCount: (report.repairQueue || []).length,
+    nonClaimsAvailable: Boolean((report.nonClaims || []).length),
     nonClaimCount: (report.nonClaims || []).length,
-    nextActionAvailable: Boolean(report.nextAction),
-    verificationCommandAvailable: Boolean(report.verificationCommand),
     evaluationSamplePayloadPolicy: {
       fullDetail: false,
       samplesReturned: samplePreview.length,
       totalSamples: report.samples?.length || 0,
-      repairQueueReturned: report.repairQueue?.length || 0,
-      fullDetailAvailable: true,
     },
   };
 }
@@ -704,8 +689,6 @@ function summarizeEvaluationSample(sample) {
     severity: sample.severity,
     score: sample.score,
     passed: Boolean(sample.passed),
-    detailAvailable: Boolean(sample.detail),
-    verificationCommandAvailable: Boolean(sample.verificationCommand),
   };
 }
 
